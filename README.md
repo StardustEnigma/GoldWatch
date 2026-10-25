@@ -217,3 +217,18 @@ Execute the automated pytest suite (all 18 unit tests run offline using syntheti
 ```bash
 pytest -v
 ```
+
+## 10. Streamlit Dashboard (Person C)
+
+Run the dashboard from the project root:
+
+```bash
+pip install -r requirements.txt
+streamlit run app.py
+```
+
+The dashboard reads `data/processed/gold_futures_processed.csv` and provides a date range filter, candlestick/line/area price views, volume and return charts, anomaly signal inspection, a data table, and CSV download. Dashboard controls are grouped in the left sidebar.
+
+When Person B's analysis is available, the dashboard can load `data/processed/gold_futures_analysis.csv` or `app_data/analysis.csv`, with `Date` and optional `Return_ZScore` and `Volume_ZScore` fields. For Person B's backtest, provide `data/processed/gold_futures_backtest.csv` with `Signal_Date` (or `Date`) and `Forward_Return` (or `Forward_Return_Pct` / `Outcome_Return`) columns. A `Baseline_Decline_Rate` column is optional. Rows with missing forward returns are excluded as incomplete outcomes.
+
+If analysis output is absent, the dashboard clearly labels its own causal robust-Z-score preview; the backtest tab reports that Person B's results are unavailable instead of presenting preview metrics as a completed backtest. Source-reported zero volume is treated as unavailable for volume scoring and displayed separately from observed positive volume. Dashboard scores show the capped return and volume contributions, with adjustable volume weighting.
