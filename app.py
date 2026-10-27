@@ -280,7 +280,7 @@ def main() -> None:
         st.selectbox("Instrument", ["COMEX Gold Futures (GC=F)"], index=0, disabled=True)
 
         if not DATA_PATH.exists():
-            st.error("Processed dataset is missing. Run the data pipeline first.")
+            st.error("The processed data file is missing. Run the data pipeline first.")
             st.stop()
 
         selected_path = DATA_PATH
@@ -288,12 +288,12 @@ def main() -> None:
             raw_mode = st.toggle(
                 "Use raw unadjusted data",
                 value=False,
-                help="Raw mode uses uncleaned Yahoo Finance OHLCV. Processed dataset is recommended for accurate volume filtering.",
+                help="Raw data contains the original Yahoo Finance OHLCV values. Processed data is recommended for more reliable volume filtering.",
             )
             if raw_mode and RAW_DATA_PATH.exists():
                 selected_path = RAW_DATA_PATH
             elif raw_mode:
-                st.warning("Raw data file unavailable; falling back to processed dataset.")
+                st.warning("The raw data file is unavailable, so processed data is being used.")
 
         try:
             all_data = load_data(str(selected_path), selected_path.stat().st_mtime_ns)
@@ -302,14 +302,14 @@ def main() -> None:
             st.stop()
 
         if all_data.empty:
-            st.error("The selected dataset contains no valid observations.")
+            st.error("The selected file contains no valid price observations.")
             st.stop()
 
         st.markdown("---")
         st.caption("DATE RANGE")
         first_day, last_day = all_data.Date.min().date(), all_data.Date.max().date()
         date_value = st.date_input(
-            "Observation horizon",
+            "Date range",
             value=(first_day, last_day),
             min_value=first_day,
             max_value=last_day,
@@ -323,24 +323,24 @@ def main() -> None:
         st.markdown("---")
         st.caption("PRICE VISUALIZATION")
         chart_type = st.selectbox(
-            "Price chart mode",
+            "Price chart",
             ["Area (Gold Glow)", "Candlestick", "Line"],
             index=0,
         )
-        show_volume = st.toggle("Include volume panel", value=True)
+        show_volume = st.toggle("Show volume chart", value=True)
 
         st.markdown("---")
-        st.caption("DETECTION MODEL (CAUSAL ROBUST Z)")
+        st.caption("UNUSUAL PRICE AND VOLUME MOVES")
         with st.expander("Model parameters", expanded=True):
-            window = st.slider("Lookback window (sessions)", 10, 120, 30, 5)
-            threshold = st.slider("Alert threshold (σ)", 1.5, 5.0, 2.5, 0.25)
+            window = st.slider("Earlier days to compare", 10, 120, 30, 5, help="Compares each day with this many earlier trading days.")
+            threshold = st.slider("Alert threshold (σ)", 1.5, 5.0, 2.5, 0.25, help="A larger threshold means fewer days are flagged as unusual. Z-score (σ) is the standard statistical measure.")
             volume_weight = st.slider(
                 "Volume score weight",
                 0.0,
                 1.0,
                 0.5,
                 0.1,
-                help="Weighted contribution of volume Z-score into unified 0–100 anomaly score.",
+                help="How much the volume Z-score affects the combined 0–100 unusual-move score.",
             )
 
     # --- Data Calculations ---
@@ -350,7 +350,7 @@ def main() -> None:
         .reset_index(drop=True)
     )
     if filtered.empty:
-        st.warning("No observations found for the selected date range.")
+        st.warning("No price data is available for this date range.")
         st.stop()
 
     signals_all = compute_signals(all_data, window, threshold, volume_weight)
@@ -454,22 +454,22 @@ def main() -> None:
         f"""
         <div class="gw-kpi-strip">
             <div class="gw-kpi-cell">
-                <div class="gw-kpi-label">Latest Settlement <span class="font-mono">USD/oz</span></div>
+                <div class="gw-kpi-label">Latest closing price <span class="font-mono">USD/oz</span></div>
                 <div class="gw-kpi-value gold">{money(float(last.Close))}</div>
                 <div class="gw-kpi-sub font-mono">COMEX GC=F · {last.Date:%d %b %Y}</div>
             </div>
             <div class="gw-kpi-cell">
-                <div class="gw-kpi-label">Session Move <span class="font-mono">1D Δ</span></div>
+                <div class="gw-kpi-label">Daily price change <span class="font-mono">1D Δ</span></div>
                 <div class="gw-kpi-value {move_class}">{pct(session_move)}</div>
                 <div class="gw-kpi-sub font-mono">Prior close {money(previous_close)}</div>
             </div>
             <div class="gw-kpi-cell">
-                <div class="gw-kpi-label">Annualized Volatility <span class="font-mono">σ · 252D</span></div>
+                <div class="gw-kpi-label">Annualized volatility <span class="font-mono">σ · 252D</span></div>
                 <div class="gw-kpi-value">{vol_value}</div>
                 <div class="gw-kpi-sub font-mono">Sample: {len(returns):,} valid sessions</div>
             </div>
             <div class="gw-kpi-cell">
-                <div class="gw-kpi-label">Unusual Sessions <span class="font-mono">|Z| ≥ {threshold:g}σ</span></div>
+                <div class="gw-kpi-label">Unusual trading days <span class="font-mono">|Z| ≥ {threshold:g}σ</span></div>
                 <div class="gw-kpi-value">{len(flagged):,} <span style="font-size:0.95rem; font-weight:400; color:#64748b;">/ {valid_sessions:,}</span></div>
                 <div class="gw-kpi-sub font-mono">{len(flagged)/max(1, valid_sessions):.1%} of selected horizon</div>
             </div>
@@ -715,10 +715,10 @@ def main() -> None:
             """
             <div class="gw-panel-header">
                 <div class="gw-panel-title">
-                    COMEX Gold Futures · Primary Market Centerpiece
+                    COMEX gold futures · price chart
                 </div>
                 <div class="gw-panel-badge font-mono">
-                    HOVER FOR SESSION DETAIL · DRAG TO ZOOM
+                    Hover for details · drag to zoom
                 </div>
             </div>
             """,
@@ -753,28 +753,28 @@ def main() -> None:
                 f"""
                 <div class="gw-panel" style="height: 100%;">
                     <div class="gw-panel-header">
-                        <div class="gw-panel-title">Horizon Performance Pulse</div>
+                        <div class="gw-panel-title">Date range summary</div>
                         <div class="gw-panel-badge font-mono">STATISTICS</div>
                     </div>
                     <div style="display:flex; flex-direction:column; gap:0.75rem;">
                         <div style="display:flex; justify-content:space-between; align-items:center; padding:0.4rem 0; border-bottom:1px solid #132433;">
-                            <span style="font-size:0.8rem; color:#94a3b8;">Period Return</span>
+                            <span style="font-size:0.8rem; color:#94a3b8;">Price change over this range</span>
                             <span class="font-mono" style="font-weight:700; color:{'#10b981' if period_return>=0 else '#f43f5e'}; font-size:1rem;">{pct(period_return)}</span>
                         </div>
                         <div style="display:flex; justify-content:space-between; align-items:center; padding:0.4rem 0; border-bottom:1px solid #132433;">
-                            <span style="font-size:0.8rem; color:#94a3b8;">Horizon Peak</span>
+                            <span style="font-size:0.8rem; color:#94a3b8;">Highest price</span>
                             <span class="font-mono" style="font-weight:600; color:#f1f5f9;">{money(peak_val)}</span>
                         </div>
                         <div style="display:flex; justify-content:space-between; align-items:center; padding:0.4rem 0; border-bottom:1px solid #132433;">
-                            <span style="font-size:0.8rem; color:#94a3b8;">Horizon Trough</span>
+                            <span style="font-size:0.8rem; color:#94a3b8;">Lowest price</span>
                             <span class="font-mono" style="font-weight:600; color:#f1f5f9;">{money(trough_val)}</span>
                         </div>
                         <div style="display:flex; justify-content:space-between; align-items:center; padding:0.4rem 0; border-bottom:1px solid #132433;">
-                            <span style="font-size:0.8rem; color:#94a3b8;">Mean Daily Volume</span>
+                            <span style="font-size:0.8rem; color:#94a3b8;">Average daily volume</span>
                             <span class="font-mono" style="font-weight:600; color:#38bdf8;">{f'{obs_volume_mean:,.0f} contracts' if pd.notna(obs_volume_mean) else '—'}</span>
                         </div>
                         <div style="display:flex; justify-content:space-between; align-items:center; padding:0.4rem 0;">
-                            <span style="font-size:0.8rem; color:#94a3b8;">Flagged Anomaly Rate</span>
+                            <span style="font-size:0.8rem; color:#94a3b8;">Days flagged as unusual</span>
                             <span class="font-mono" style="font-weight:600; color:#f5bd4f;">{len(flagged):,} sessions ({len(flagged)/max(1, valid_sessions):.1%})</span>
                         </div>
                     </div>
@@ -788,8 +788,8 @@ def main() -> None:
                 """
                 <div class="gw-panel" style="height: 100%;">
                     <div class="gw-panel-header">
-                        <div class="gw-panel-title">Session Return Distribution</div>
-                        <div class="gw-panel-badge font-mono">DENSITY & FREQUENCY</div>
+                        <div class="gw-panel-title">Daily price change distribution</div>
+                        <div class="gw-panel-badge font-mono">FREQUENCY</div>
                     </div>
                 """,
                 unsafe_allow_html=True,
@@ -824,7 +824,7 @@ def main() -> None:
         st.markdown(
             f"""
             <div class="gw-alert-box info">
-                <b>Signal Model Status:</b> {analysis_note}. Absolute Z-score threshold set to <b>|Z| ≥ {threshold:g}σ</b>. Volume values reported as zero are treated as unobserved and omitted from volume anomaly scoring.
+                <b>Signal status:</b> {analysis_note}. Alerts use the selected Z-score threshold <b>|Z| ≥ {threshold:g}σ</b>. Volume values reported as zero are treated as unavailable and left out of the volume score.
             </div>
             """,
             unsafe_allow_html=True,
@@ -837,7 +837,7 @@ def main() -> None:
                 """
                 <div class="gw-panel-header">
                     <div class="gw-panel-title">Return Z-Score (σ)</div>
-                    <div class="gw-panel-badge font-mono">ROBUST MEDIAN/MAD</div>
+                    <div class="gw-panel-badge font-mono">RETURN Z-SCORE</div>
                 </div>
                 """,
                 unsafe_allow_html=True,
@@ -875,7 +875,7 @@ def main() -> None:
                 """
                 <div class="gw-panel-header">
                     <div class="gw-panel-title">Volume Z-Score (σ)</div>
-                    <div class="gw-panel-badge font-mono">LOG-TRANSFORMED MAD</div>
+                    <div class="gw-panel-badge font-mono">VOLUME Z-SCORE</div>
                 </div>
                 """,
                 unsafe_allow_html=True,
@@ -913,7 +913,7 @@ def main() -> None:
         events = filtered[filtered.Is_Anomaly.fillna(False)].copy()
         if events.empty:
             st.info(
-                f"No qualifying anomaly sessions found at threshold |Z| ≥ {threshold:g}σ. Reduce the threshold slider in the sidebar to inspect milder events."
+                f"No days met the |Z| ≥ {threshold:g}σ threshold. Lower the alert threshold in the sidebar to see less extreme moves."
             )
         else:
             events["Why flagged"] = [
@@ -924,8 +924,8 @@ def main() -> None:
             st.markdown(
                 f"""
                 <div class="gw-panel-header" style="margin-top:1.25rem;">
-                    <div class="gw-panel-title">Identified Market Anomalies ({len(events):,} Sessions)</div>
-                    <div class="gw-panel-badge font-mono">RANKED BY ANOMALY SEVERITY</div>
+                    <div class="gw-panel-title">Unusual market moves ({len(events):,} days)</div>
+                    <div class="gw-panel-badge font-mono">SORTED BY SCORE</div>
                 </div>
                 """,
                 unsafe_allow_html=True,
@@ -936,7 +936,7 @@ def main() -> None:
             with fc1:
                 available_types = sorted(events.Event_Type.dropna().unique().tolist())
                 chosen_types = st.multiselect(
-                    "Filter event types", available_types, default=available_types
+                    "Filter by event type", available_types, default=available_types
                 )
             with fc2:
                 sort_col = st.selectbox(
@@ -951,7 +951,7 @@ def main() -> None:
                     }[x],
                 )
             with fc3:
-                per_page = st.selectbox("Page size", [25, 50, 100], index=0)
+                per_page = st.selectbox("Events per page", [25, 50, 100], index=0)
 
             filtered_events = events[events.Event_Type.isin(chosen_types)]
             ascending = sort_col == "Date"
@@ -989,7 +989,7 @@ def main() -> None:
                     "Price": st.column_config.NumberColumn(
                         "Close (USD/oz)", format="$%.2f"
                     ),
-                    "Event_Type": st.column_config.TextColumn("Classification"),
+                    "Event_Type": st.column_config.TextColumn("Event type"),
                     "Anomaly_Score": st.column_config.NumberColumn(
                         "Score (0–100)", format="%.1f"
                     ),
@@ -999,7 +999,7 @@ def main() -> None:
                     "Volume_ZScore": st.column_config.NumberColumn(
                         "Volume Z (σ)", format="%+.2f"
                     ),
-                    "Why flagged": st.column_config.TextColumn("Trigger Condition"),
+                    "Why flagged": st.column_config.TextColumn("Why it was flagged"),
                 },
             )
 
@@ -1007,8 +1007,8 @@ def main() -> None:
             st.markdown(
                 """
                 <div style="margin-top: 1.25rem;">
-                    <div style="font-size:0.85rem; font-weight:600; color:#f1f5f9; margin-bottom:0.25rem;">Score Composition (Capped Return vs Volume Contributions)</div>
-                    <div style="font-size:0.75rem; color:#64748b; margin-bottom:0.75rem;">Return weight = 1.0; Volume weight = configured setting. Normalized to 0–100 scale.</div>
+                    <div style="font-size:0.85rem; font-weight:600; color:#f1f5f9; margin-bottom:0.25rem;">What makes up the score</div>
+                    <div style="font-size:0.75rem; color:#64748b; margin-bottom:0.75rem;">The score combines return and volume readings on a 0–100 scale. The volume weight is set in the sidebar.</div>
                 </div>
                 """,
                 unsafe_allow_html=True,
@@ -1043,8 +1043,8 @@ def main() -> None:
         st.markdown(
             """
             <div class="gw-panel-header" style="margin-bottom: 0.75rem;">
-                <div class="gw-panel-title">Spike Reversal Event Study & Post-Alert Outcomes</div>
-                <div class="gw-panel-badge font-mono">PERSON B RESEARCH INTEGRATION</div>
+                <div class="gw-panel-title">What happened after unusual price moves</div>
+                <div class="gw-panel-badge font-mono">BACKTEST RESULTS</div>
             </div>
             """,
             unsafe_allow_html=True,
@@ -1054,20 +1054,20 @@ def main() -> None:
             st.markdown(
                 f"""
                 <div class="gw-alert-box warning">
-                    <div style="font-weight:600; color:#f59e0b; margin-bottom:0.35rem;">Backtest Results File Not Found</div>
-                    <div>Person B's backtest dataset is not currently detected in <code>data/processed/gold_futures_backtest.csv</code> or <code>app_data/analysis.csv</code>. To maintain mathematical integrity, provisional candidate counts are not presented as completed backtest outcomes.</div>
+                    <div style="font-weight:600; color:#f59e0b; margin-bottom:0.35rem;">Backtest results are not available yet</div>
+                    <div>No backtest results file was found at <code>data/processed/gold_futures_backtest.csv</code> or <code>app_data/analysis.csv</code>. Unusual days are not shown as completed backtest results.</div>
                 </div>
                 <div class="gw-panel">
-                    <div class="gw-panel-title" style="margin-bottom:0.5rem;">Expected Integration Schema</div>
+                    <div class="gw-panel-title" style="margin-bottom:0.5rem;">What the results file needs</div>
                     <div style="font-size:0.82rem; color:#94a3b8; line-height:1.5;">
-                        Supply a CSV artifact with the following verified columns:<br>
+                        Provide a CSV file with these columns:<br>
                         • <code>Signal_Date</code> or <code>Date</code>: Trading session of the trigger.<br>
-                        • <code>Forward_Return</code> or <code>Forward_Return_Pct</code>: Realized return over the evaluation horizon.<br>
-                        • <code>Evaluation_Horizon</code> (optional): Number of holding sessions (e.g. 5, 10, 20).<br>
-                        • <code>Baseline_Decline_Rate</code> (optional): Unconditional market decline rate for benchmark.<br>
+                        • <code>Forward_Return</code> or <code>Forward_Return_Pct</code>: Return over the number of days being measured.<br>
+                        • <code>Evaluation_Horizon</code> (optional): Number of trading days measured (e.g. 5, 10, 20).<br>
+                        • <code>Baseline_Decline_Rate</code> (optional): Share of all market days with a decline, used for comparison.<br>
                     </div>
                     <div style="margin-top:0.9rem; font-size:0.75rem; font-family:'JetBrains Mono',monospace; color:#64748b;">
-                        Current workspace status: {len(flagged):,} potential spike signals identified in the selected date range.
+                        Currently, {len(flagged):,} unusual days appear in the selected date range.
                     </div>
                 </div>
                 """,
@@ -1092,7 +1092,7 @@ def main() -> None:
             )
             if date_col is None or forward_col is None:
                 st.error(
-                    "Backtest file found, but required signal date and forward return columns are missing."
+                    "The backtest file needs a signal date and a later return value to calculate results."
                 )
             else:
                 bt[date_col] = pd.to_datetime(bt[date_col], errors="coerce")
@@ -1105,17 +1105,17 @@ def main() -> None:
 
                 if bt.empty:
                     st.info(
-                        "No completed forward outcomes remain in the selected date range."
+                        "No complete results are available for this date range. Recent signals may not have enough later data yet."
                     )
                 else:
                     decline_threshold = st.slider(
-                        "Decline hurdle threshold (%)",
+                        "Decline threshold (%)",
                         0.0,
                         5.0,
                         0.0,
                         0.25,
                         format="%.2f%%",
-                        help="Hurdle below which a forward return is classified as a realized decline.",
+                        help="A later return below this negative percentage counts as a decline.",
                     )
                     declines = bt[forward_col] < -(decline_threshold / 100)
                     horizon_col = next(
@@ -1236,8 +1236,8 @@ def main() -> None:
         st.markdown(
             f"""
             <div class="gw-panel-header" style="margin-bottom:0.75rem;">
-                <div class="gw-panel-title">Gold Futures Market Series & Engineered Signals</div>
-                <div class="gw-panel-badge font-mono">DATASET EXPLORER · {len(filtered):,} SESSIONS</div>
+                <div class="gw-panel-title">Gold price and signal data</div>
+                <div class="gw-panel-badge font-mono">{len(filtered):,} TRADING DAYS</div>
             </div>
             """,
             unsafe_allow_html=True,
@@ -1253,10 +1253,10 @@ def main() -> None:
         )
         missing_table = missing_table[missing_table["Unavailable Sessions"] > 0]
         if not missing_table.empty:
-            with st.expander("Data completeness & audit details", expanded=False):
+            with st.expander("Missing data details", expanded=False):
                 st.dataframe(missing_table, width="stretch", hide_index=True)
                 st.caption(
-                    "Note: Initial rolling lookback sessions lack prior lookback history; zero-volume records in early historical GC=F data are treated as unobserved."
+                    "The first days may not have enough earlier data to calculate a Z-score. Historical GC=F volume values reported as zero are treated as unavailable."
                 )
 
         # Table configuration & filtering
@@ -1264,7 +1264,7 @@ def main() -> None:
         numeric_cols = filtered.select_dtypes(include="number").columns.tolist()
         with tc1:
             chosen_cols = st.multiselect(
-                "Select table columns",
+                "Columns to show",
                 options=["Date", *numeric_cols],
                 default=[
                     c
@@ -1282,7 +1282,7 @@ def main() -> None:
             )
         with tc2:
             tbl_sort = st.selectbox(
-                "Sort table by",
+                "Sort rows by",
                 ["Newest First", "Oldest First", "Highest Anomaly Score"],
                 index=0,
             )
@@ -1301,13 +1301,13 @@ def main() -> None:
             "Open": "Open (USD/oz)",
             "High": "High (USD/oz)",
             "Low": "Low (USD/oz)",
-            "Volume": "Source Volume",
-            "Volume_Observed": "Observed Volume",
-            "Daily_Return": "Daily Return (%)",
-            "Return_ZScore": "Return Z (σ)",
-            "Volume_ZScore": "Volume Z (σ)",
-            "Anomaly_Score": "Anomaly Score",
-            "Event_Type": "Classification",
+            "Volume": "Reported volume",
+            "Volume_Observed": "Available volume",
+            "Daily_Return": "Daily price change (%)",
+            "Return_ZScore": "Return Z-score (σ)",
+            "Volume_ZScore": "Volume Z-score (σ)",
+            "Anomaly_Score": "Unusual-move score",
+            "Event_Type": "Event type",
         }
         col_formats = {
             "Date": st.column_config.DateColumn("Trading Date"),
@@ -1316,19 +1316,19 @@ def main() -> None:
             "High": st.column_config.NumberColumn("High (USD/oz)", format="$%.2f"),
             "Low": st.column_config.NumberColumn("Low (USD/oz)", format="$%.2f"),
             "Volume_Observed": st.column_config.NumberColumn(
-                "Observed Volume", format="%.0f"
+                "Available volume", format="%.0f"
             ),
             "Daily_Return": st.column_config.NumberColumn(
-                "Daily Return (%)", format="%+.2f%%"
+                "Daily price change (%)", format="%+.2f%%"
             ),
             "Return_ZScore": st.column_config.NumberColumn(
-                "Return Z (σ)", format="%+.2f"
+                "Return Z-score (σ)", format="%+.2f"
             ),
             "Volume_ZScore": st.column_config.NumberColumn(
-                "Volume Z (σ)", format="%+.2f"
+                "Volume Z-score (σ)", format="%+.2f"
             ),
             "Anomaly_Score": st.column_config.NumberColumn(
-                "Anomaly Score", format="%.1f"
+                "Unusual-move score", format="%.1f"
             ),
         }
 
@@ -1365,13 +1365,13 @@ def main() -> None:
             "raw" if selected_path == RAW_DATA_PATH else "processed_signals"
         )
         st.download_button(
-            label="Download Selected Dataset (CSV)",
+            label="Download this date range (CSV)",
             data=csv_bytes,
             file_name=f"goldwatch_{export_mode}_{start_date}_{end_date}.csv",
             mime="text/csv",
         )
         st.caption(
-            f"Export contains {len(tbl):,} sessions · {len(chosen_cols)} columns · {export_mode} mode. Missing/unobserved values exported as '—'."
+            f"File includes {len(tbl):,} days and {len(chosen_cols)} columns · {export_mode.replace('_', ' ')} data. Missing values appear as '—'."
         )
 
 
