@@ -218,7 +218,30 @@ Execute the automated pytest suite (all 18 unit tests run offline using syntheti
 pytest -v
 ```
 
-## 10. Streamlit Dashboard (Person C)
+## 10. Anomaly Detection & Backtesting (Person B)
+
+Run after the data pipeline, from the project root:
+
+```bash
+python scripts/run_anomaly_detection.py                  # window=30, threshold=2.5, horizon=5
+python scripts/run_anomaly_detection.py --window 60 --threshold 3 --top 15
+```
+
+| Step | Algorithm | Code |
+|---|---|---|
+| 1 | Rolling Z-score on returns and log-volume (uses only past data) | `src/anomaly_detection.py` |
+| 2 | Anomaly score (0–100), flag, and event label | `src/anomaly_detection.py` |
+| 3 | Event-study backtest: forward return after each upward spike vs. baseline | `src/backtest.py` |
+| 4 | One-proportion Z-test: is the post-spike decline rate significant? | `src/backtest.py` |
+
+Outputs (read automatically by the dashboard):
+- `data/processed/gold_futures_analysis.csv`: one row per day with Z-scores, score, and label
+- `data/processed/gold_futures_backtest.csv`: one row per upward spike with its forward return
+- `data/processed/gold_futures_backtest_summary.csv`: decline rate vs. baseline per horizon
+
+See [`ALGORITHMS.md`](ALGORITHMS.md) for step-by-step explanations, worked examples, and results.
+
+## 11. Streamlit Dashboard (Person C)
 
 Run the dashboard from the project root:
 
