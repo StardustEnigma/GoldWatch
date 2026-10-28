@@ -1,10 +1,36 @@
-[theme]
-base = "dark"
-primaryColor = "#14b8a6"
-backgroundColor = "#071019"
-secondaryBackgroundColor = "#0b1722"
-textColor = "#f1f5f9"
-font = "sans serif"
+[server]
+enableStaticServing = true
 
 [client]
 toolbarMode = "minimal"
+
+[theme]
+base = "light"
+primaryColor = "#1F5FAD"
+backgroundColor = "#FFFFFF"
+secondaryBackgroundColor = "#F5F6F8"
+textColor = "#16191D"
+borderColor = "#E3E6EA"
+showWidgetBorder = true
+baseRadius = "6px"
+buttonRadius = "6px"
+baseFontSize = 15
+font = "IBM Plex Sans, Helvetica Neue, Arial, sans-serif"
+headingFont = "IBM Plex Sans, Helvetica Neue, Arial, sans-serif"
+headingFontWeights = [600, 600, 600, 600, 600, 600]
+metricValueFontSize = "1.65rem"
+metricValueFontWeight = 600
+greenColor = "#137333"
+redColor = "#C5221F"
+blueColor = "#1F5FAD"
+linkColor = "#1F5FAD"
+linkUnderline = false
+dataframeBorderColor = "#E3E6EA"
+dataframeHeaderBackgroundColor = "#F5F6F8"
+dataframeHeaderTextColor = "#5F6368"
+chartCategoricalColors = ["#1F5FAD", "#137333", "#C5221F", "#B8860B", "#5F6368"]
+
+[[theme.fontFaces]]
+family = "IBM Plex Sans"
+url = "app/static/fonts/IBMPlexSans-Variable-latin.woff2"
+weight = "100 700"

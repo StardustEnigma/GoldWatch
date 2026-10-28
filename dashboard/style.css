@@ -1,0 +1,593 @@
+/* GoldWatch UI: light market-data app theme */
+
+:root {
+  --ink: #16191d;
+  --ink-2: #4b5563;
+  --ink-3: #6b7280;      /* 4.8:1 on white, meets WCAG AA */
+  --line: #e3e6ea;
+  --canvas: #f4f5f7;
+  --surface-2: #f5f6f8;
+  --accent: #1f5fad;
+  --accent-soft: #eaf1fa;
+  --gold: #b8860b;
+  --up: #137333;
+  --up-soft: #e8f3ec;
+  --down: #c5221f;
+}
+
+body {
+  font-feature-settings: "tnum" 1;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---------------------------------------------------------------- app shell */
+.stApp,
+[data-testid="stAppViewContainer"],
+[data-testid="stMain"] {
+  background: var(--canvas);
+}
+[data-testid="stHeader"] {
+  background: #fff;
+  border-bottom: 1px solid var(--line);
+}
+[data-testid="stDecoration"] {
+  display: none;
+}
+[data-testid="stMainBlockContainer"] {
+  max-width: 1240px;
+  padding: 5.25rem 2.5rem 3rem;
+}
+@media (max-width: 640px) {
+  [data-testid="stMainBlockContainer"] {
+    padding: 4.5rem 0.875rem 2rem;
+  }
+}
+
+/* White panels on the grey canvas */
+[class*="st-key-panel-"],
+[class*="st-key-card-"],
+[data-testid="stExpander"] details {
+  background: #fff;
+}
+[class*="st-key-panel-"],
+[class*="st-key-card-"] {
+  border-radius: 8px;
+}
+
+/* ---------------------------------------------------------------- type */
+.gw-title {
+  margin: 0 0 0.35rem;
+  font-size: clamp(1.6rem, 1.3rem + 1vw, 2rem);
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+}
+.gw-lede {
+  margin: 0;
+  max-width: 62ch;
+  font-size: 1rem;
+  line-height: 1.55;
+  color: var(--ink-2);
+}
+.gw-lede b {
+  color: var(--ink);
+  font-weight: 600;
+}
+.gw-h2 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--ink);
+}
+.gw-h3 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+.gw-sub {
+  margin: 0.2rem 0 0;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--ink-3);
+}
+.gw-sub b {
+  color: var(--ink);
+}
+.gw-explain {
+  margin: 0;
+  max-width: 75ch;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--ink);
+}
+.gw-read {
+  margin: 0;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: var(--ink-3);
+}
+.gw-read span {
+  font-weight: 600;
+  color: var(--ink-2);
+}
+
+/* ---------------------------------------------------------------- quote */
+.gw-quote__name {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+.gw-quote__name span {
+  margin-left: 0.5rem;
+  font-size: 0.85rem;
+  font-weight: 400;
+  color: var(--ink-3);
+}
+.gw-quote__line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.25rem 1rem;
+  margin-top: 0.25rem;
+}
+.gw-quote__price {
+  font-size: clamp(2rem, 1.5rem + 1.8vw, 2.6rem);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+.gw-chg {
+  font-size: 1.05rem;
+  font-weight: 500;
+}
+.gw-quote__asof {
+  font-size: 0.875rem;
+  color: var(--ink-3);
+}
+
+/* ---------------------------------------------------------------- stat lists */
+.stHtml dl.gw-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  column-gap: 2.5rem;
+  margin: 0;
+  padding: 0;
+}
+.stHtml dl.gw-stats--1 {
+  grid-template-columns: 1fr;
+}
+.gw-stat {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.65rem 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 0.9rem;
+}
+.gw-stat dt {
+  color: var(--ink-2);
+}
+.gw-stat dd {
+  margin: 0;
+  font-weight: 500;
+  text-align: right;
+  color: var(--ink);
+}
+@media (max-width: 900px) {
+  .stHtml dl.gw-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 1.5rem;
+  }
+}
+@media (max-width: 560px) {
+  .stHtml dl.gw-stats {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---------------------------------------------------------------- explore cards */
+[class*="st-key-card-"] {
+  height: 100%;
+  min-height: 210px;
+}
+@media (max-width: 640px) {
+  [class*="st-key-card-"] {
+    min-height: 0;
+  }
+}
+[class*="st-key-card-"]:hover {
+  border-color: #c8d3e3;
+  box-shadow: 0 2px 10px rgba(22, 25, 29, 0.06);
+}
+.gw-card-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  margin-bottom: 0.6rem;
+  border-radius: 8px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-family: "Material Symbols Rounded";
+  font-size: 1.3rem;
+  line-height: 1;
+}
+.gw-card-text {
+  margin: 0.3rem 0 0;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--ink-2);
+}
+
+/* Links that look like links */
+[data-testid="stPageLink"] a p {
+  color: var(--accent);
+  font-weight: 500;
+}
+
+/* ---------------------------------------------------------------- callouts */
+.gw-callout {
+  padding: 0.9rem 1.1rem;
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--accent);
+  border-radius: 8px;
+  background: #fff;
+}
+.gw-callout--positive {
+  border-left-color: var(--up);
+}
+.gw-callout__title {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+.gw-callout p {
+  margin: 0.25rem 0 0;
+  line-height: 1.55;
+  color: var(--ink-2);
+}
+.gw-callout b {
+  color: var(--ink);
+}
+
+/* ---------------------------------------------------------------- method page */
+.stHtml ol.gw-steps {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1.75rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.gw-step {
+  position: relative;
+  padding: 1.1rem 1.1rem 1.2rem;
+  border: 1px solid var(--line);
+  border-top: 3px solid var(--gold);
+  border-radius: 8px;
+  background: #fff;
+}
+.gw-step:not(:last-child)::after {
+  content: "→";
+  position: absolute;
+  top: 50%;
+  right: -1.35rem;
+  transform: translateY(-50%);
+  font-size: 1.1rem;
+  color: var(--ink-3);
+}
+.gw-step__n {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.6rem;
+  height: 1.6rem;
+  margin-bottom: 0.5rem;
+  border-radius: 50%;
+  background: var(--ink);
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+.gw-step p {
+  margin: 0.3rem 0 0;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--ink-2);
+}
+@media (max-width: 900px) {
+  .stHtml ol.gw-steps {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  .gw-step:not(:last-child)::after {
+    content: "↓";
+    top: auto;
+    right: auto;
+    bottom: -1.45rem;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+}
+
+.stHtml .gw-list {
+  margin: 0 0 0.75rem;
+  padding-left: 1.25rem;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--ink);
+}
+.stHtml .gw-list li {
+  margin-bottom: 0.25rem;
+}
+
+.stHtml dl.gw-glossary {
+  margin: 0;
+  padding: 0;
+}
+.gw-glossary div {
+  padding: 0.6rem 0;
+  border-bottom: 1px solid var(--line);
+}
+.gw-glossary dt {
+  font-weight: 600;
+  color: var(--ink);
+}
+.gw-glossary dd {
+  margin: 0.15rem 0 0;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--ink-2);
+}
+
+/* Data date in the utility bar */
+.gw-asof {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.85rem;
+  white-space: nowrap;
+  color: var(--ink-2);
+}
+.gw-asof .material-symbols-rounded {
+  font-family: "Material Symbols Rounded";
+  font-size: 1.05rem;
+  color: var(--ink-3);
+}
+
+/* ---------------------------------------------------------------- KPI cards */
+.gw-kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+}
+@media (max-width: 640px) {
+  .gw-kpis {
+    gap: 0.75rem;
+  }
+  .gw-kpi__value {
+    font-size: 1.4rem;
+  }
+}
+.gw-kpi {
+  padding: 0.95rem 1.1rem 1rem;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+}
+.gw-kpi__label {
+  font-size: 0.85rem;
+  color: var(--ink-2);
+}
+.gw-kpi__value {
+  margin-top: 0.15rem;
+  font-size: 1.65rem;
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+}
+.gw-kpi__note {
+  margin-top: 0.2rem;
+  font-size: 0.8rem;
+  line-height: 1.45;
+  color: var(--ink-3);
+}
+
+/* Explore card contents */
+.gw-card-head {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+.gw-card-head .gw-card-icon {
+  margin-bottom: 0;
+}
+.gw-card-stat {
+  margin-top: 0.85rem;
+  font-size: 1.9rem;
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+.gw-card-stat-label {
+  font-size: 0.85rem;
+  color: var(--ink-2);
+}
+.gw-event {
+  margin: 0.15rem 0 0.5rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+.gw-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 300px;
+  text-align: center;
+  color: var(--ink-3);
+}
+.gw-empty .material-symbols-rounded {
+  font-family: "Material Symbols Rounded";
+  font-size: 2rem;
+}
+.gw-empty p {
+  margin: 0;
+  max-width: 28ch;
+}
+
+/* Text for screen readers only */
+.gw-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* ---------------------------------------------------------------- motion
+   Light and one-off: content rises in when it first appears, numbers count up,
+   clickable cards lift on hover. Nothing loops. All of it is skipped when the
+   visitor has asked their system for reduced motion. */
+@keyframes gw-rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+@keyframes gw-fade {
+  from {
+    opacity: 0;
+  }
+}
+.gw-title,
+.gw-lede {
+  animation: gw-fade 0.45s ease-out backwards;
+}
+[class*="st-key-panel-"],
+[class*="st-key-card-"],
+.gw-kpi,
+.gw-step,
+.gw-callout {
+  animation: gw-rise 0.5s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+}
+/* Gentle left-to-right stagger */
+.gw-kpi:nth-child(2), .gw-step:nth-child(2),
+[data-testid="stColumn"]:nth-child(2) [class*="st-key-card-"],
+[data-testid="stColumn"]:nth-child(2) [class*="st-key-panel-"] { animation-delay: 60ms; }
+.gw-kpi:nth-child(3), .gw-step:nth-child(3),
+[data-testid="stColumn"]:nth-child(3) [class*="st-key-card-"] { animation-delay: 120ms; }
+.gw-kpi:nth-child(4), .gw-step:nth-child(4),
+[data-testid="stColumn"]:nth-child(4) [class*="st-key-card-"] { animation-delay: 180ms; }
+
+/* Count-up numbers (whole part counts; decimals and units stay put).
+   Never write a less-than sign in this file: the HTML sanitizer drops the whole
+   style block. The @property syntax below uses the CSS escape \3c instead. */
+@property --gw-n {
+  syntax: "\3c integer\3e";
+  inherits: false;
+  initial-value: 0;
+}
+@property --gw-k {
+  syntax: "\3c integer\3e";
+  inherits: false;
+  initial-value: 0;
+}
+@property --gw-r {
+  syntax: "\3c integer\3e";
+  inherits: false;
+  initial-value: 0;
+}
+@counter-style gw-pad3 {
+  system: extends decimal;
+  pad: 3 "0";
+}
+@keyframes gw-count {
+  from {
+    --gw-n: 0;
+  }
+}
+@keyframes gw-count-k {
+  from {
+    --gw-k: 0;
+    --gw-r: 0;
+  }
+}
+.gw-count {
+  --gw-n: var(--to);
+  counter-reset: gw-n var(--gw-n);
+  animation: gw-count 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.1s backwards;
+}
+.gw-count::after {
+  content: counter(gw-n);
+}
+.gw-count--k {
+  --gw-k: var(--k);
+  --gw-r: var(--r);
+  counter-reset: gw-k var(--gw-k) gw-r var(--gw-r);
+  animation-name: gw-count-k;
+}
+.gw-count--k::after {
+  content: counter(gw-k) "," counter(gw-r, gw-pad3);
+}
+
+/* Clickable cards: the whole card is the link, and it lifts slightly on hover */
+[class*="st-key-card-"] {
+  position: relative;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
+}
+[class*="st-key-card-"] [data-testid="stElementContainer"]:has([data-testid="stPageLink"]),
+[class*="st-key-card-"] [data-testid="stPageLink"],
+[class*="st-key-card-"] [data-testid="stPageLink"] * {
+  position: static;
+}
+[class*="st-key-card-"] [data-testid="stPageLink"] a::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+[class*="st-key-card-"]:hover {
+  transform: translateY(-2px);
+}
+
+/* While the app recalculates, dim content slightly instead of heavily */
+[data-stale="true"] {
+  opacity: 0.6 !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+  .gw-count {
+    --gw-n: var(--to);
+  }
+}
+
+/* ---------------------------------------------------------------- misc */
+.up { color: var(--up); }
+.down { color: var(--down); }
+.muted { color: var(--ink-3); }
+
+.gw-footer {
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--line);
+  font-size: 0.8rem;
+  line-height: 1.6;
+  color: var(--ink-3);
+}
+.gw-footer a {
+  color: var(--accent);
+}
